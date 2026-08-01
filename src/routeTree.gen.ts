@@ -10,33 +10,241 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
+import { Route as AuthenticatedEnrolmentsRouteImport } from './routes/_authenticated/enrolments'
+import { Route as AuthenticatedExamPeriodsRouteImport } from './routes/_authenticated/exam-periods'
+import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
+import { Route as AuthenticatedFacultiesRouteImport } from './routes/_authenticated/faculties'
+import { Route as AuthenticatedHolidaysRouteImport } from './routes/_authenticated/holidays'
+import { Route as AuthenticatedLecturersRouteImport } from './routes/_authenticated/lecturers'
+import { Route as AuthenticatedModulesRouteImport } from './routes/_authenticated/modules'
+import { Route as AuthenticatedMyTimetableRouteImport } from './routes/_authenticated/my-timetable'
+import { Route as AuthenticatedScheduleRouteImport } from './routes/_authenticated/schedule'
+import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
+import { Route as AuthenticatedTimeslotsRouteImport } from './routes/_authenticated/timeslots'
+import { Route as AuthenticatedVenuesRouteImport } from './routes/_authenticated/venues'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDepartmentsRoute =
+  AuthenticatedDepartmentsRouteImport.update({
+    id: '/departments',
+    path: '/departments',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEnrolmentsRoute = AuthenticatedEnrolmentsRouteImport.update({
+  id: '/enrolments',
+  path: '/enrolments',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedExamPeriodsRoute =
+  AuthenticatedExamPeriodsRouteImport.update({
+    id: '/exam-periods',
+    path: '/exam-periods',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedExamsRoute = AuthenticatedExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFacultiesRoute = AuthenticatedFacultiesRouteImport.update({
+  id: '/faculties',
+  path: '/faculties',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHolidaysRoute = AuthenticatedHolidaysRouteImport.update({
+  id: '/holidays',
+  path: '/holidays',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLecturersRoute = AuthenticatedLecturersRouteImport.update({
+  id: '/lecturers',
+  path: '/lecturers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedModulesRoute = AuthenticatedModulesRouteImport.update({
+  id: '/modules',
+  path: '/modules',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyTimetableRoute =
+  AuthenticatedMyTimetableRouteImport.update({
+    id: '/my-timetable',
+    path: '/my-timetable',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedScheduleRoute = AuthenticatedScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTimeslotsRoute = AuthenticatedTimeslotsRouteImport.update({
+  id: '/timeslots',
+  path: '/timeslots',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedVenuesRoute = AuthenticatedVenuesRouteImport.update({
+  id: '/venues',
+  path: '/venues',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/audit': typeof AuthenticatedAuditRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/departments': typeof AuthenticatedDepartmentsRoute
+  '/enrolments': typeof AuthenticatedEnrolmentsRoute
+  '/exam-periods': typeof AuthenticatedExamPeriodsRoute
+  '/exams': typeof AuthenticatedExamsRoute
+  '/faculties': typeof AuthenticatedFacultiesRoute
+  '/holidays': typeof AuthenticatedHolidaysRoute
+  '/lecturers': typeof AuthenticatedLecturersRoute
+  '/modules': typeof AuthenticatedModulesRoute
+  '/my-timetable': typeof AuthenticatedMyTimetableRoute
+  '/schedule': typeof AuthenticatedScheduleRoute
+  '/students': typeof AuthenticatedStudentsRoute
+  '/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/audit': typeof AuthenticatedAuditRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/departments': typeof AuthenticatedDepartmentsRoute
+  '/enrolments': typeof AuthenticatedEnrolmentsRoute
+  '/exam-periods': typeof AuthenticatedExamPeriodsRoute
+  '/exams': typeof AuthenticatedExamsRoute
+  '/faculties': typeof AuthenticatedFacultiesRoute
+  '/holidays': typeof AuthenticatedHolidaysRoute
+  '/lecturers': typeof AuthenticatedLecturersRoute
+  '/modules': typeof AuthenticatedModulesRoute
+  '/my-timetable': typeof AuthenticatedMyTimetableRoute
+  '/schedule': typeof AuthenticatedScheduleRoute
+  '/students': typeof AuthenticatedStudentsRoute
+  '/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
+  '/_authenticated/enrolments': typeof AuthenticatedEnrolmentsRoute
+  '/_authenticated/exam-periods': typeof AuthenticatedExamPeriodsRoute
+  '/_authenticated/exams': typeof AuthenticatedExamsRoute
+  '/_authenticated/faculties': typeof AuthenticatedFacultiesRoute
+  '/_authenticated/holidays': typeof AuthenticatedHolidaysRoute
+  '/_authenticated/lecturers': typeof AuthenticatedLecturersRoute
+  '/_authenticated/modules': typeof AuthenticatedModulesRoute
+  '/_authenticated/my-timetable': typeof AuthenticatedMyTimetableRoute
+  '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
+  '/_authenticated/students': typeof AuthenticatedStudentsRoute
+  '/_authenticated/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/_authenticated/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/audit'
+    | '/dashboard'
+    | '/departments'
+    | '/enrolments'
+    | '/exam-periods'
+    | '/exams'
+    | '/faculties'
+    | '/holidays'
+    | '/lecturers'
+    | '/modules'
+    | '/my-timetable'
+    | '/schedule'
+    | '/students'
+    | '/timeslots'
+    | '/venues'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/audit'
+    | '/dashboard'
+    | '/departments'
+    | '/enrolments'
+    | '/exam-periods'
+    | '/exams'
+    | '/faculties'
+    | '/holidays'
+    | '/lecturers'
+    | '/modules'
+    | '/my-timetable'
+    | '/schedule'
+    | '/students'
+    | '/timeslots'
+    | '/venues'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/audit'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/departments'
+    | '/_authenticated/enrolments'
+    | '/_authenticated/exam-periods'
+    | '/_authenticated/exams'
+    | '/_authenticated/faculties'
+    | '/_authenticated/holidays'
+    | '/_authenticated/lecturers'
+    | '/_authenticated/modules'
+    | '/_authenticated/my-timetable'
+    | '/_authenticated/schedule'
+    | '/_authenticated/students'
+    | '/_authenticated/timeslots'
+    | '/_authenticated/venues'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +256,172 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/audit': {
+      id: '/_authenticated/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuthenticatedAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/departments': {
+      id: '/_authenticated/departments'
+      path: '/departments'
+      fullPath: '/departments'
+      preLoaderRoute: typeof AuthenticatedDepartmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/enrolments': {
+      id: '/_authenticated/enrolments'
+      path: '/enrolments'
+      fullPath: '/enrolments'
+      preLoaderRoute: typeof AuthenticatedEnrolmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/exam-periods': {
+      id: '/_authenticated/exam-periods'
+      path: '/exam-periods'
+      fullPath: '/exam-periods'
+      preLoaderRoute: typeof AuthenticatedExamPeriodsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/exams': {
+      id: '/_authenticated/exams'
+      path: '/exams'
+      fullPath: '/exams'
+      preLoaderRoute: typeof AuthenticatedExamsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/faculties': {
+      id: '/_authenticated/faculties'
+      path: '/faculties'
+      fullPath: '/faculties'
+      preLoaderRoute: typeof AuthenticatedFacultiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/holidays': {
+      id: '/_authenticated/holidays'
+      path: '/holidays'
+      fullPath: '/holidays'
+      preLoaderRoute: typeof AuthenticatedHolidaysRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lecturers': {
+      id: '/_authenticated/lecturers'
+      path: '/lecturers'
+      fullPath: '/lecturers'
+      preLoaderRoute: typeof AuthenticatedLecturersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/modules': {
+      id: '/_authenticated/modules'
+      path: '/modules'
+      fullPath: '/modules'
+      preLoaderRoute: typeof AuthenticatedModulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-timetable': {
+      id: '/_authenticated/my-timetable'
+      path: '/my-timetable'
+      fullPath: '/my-timetable'
+      preLoaderRoute: typeof AuthenticatedMyTimetableRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/schedule': {
+      id: '/_authenticated/schedule'
+      path: '/schedule'
+      fullPath: '/schedule'
+      preLoaderRoute: typeof AuthenticatedScheduleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/students': {
+      id: '/_authenticated/students'
+      path: '/students'
+      fullPath: '/students'
+      preLoaderRoute: typeof AuthenticatedStudentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/timeslots': {
+      id: '/_authenticated/timeslots'
+      path: '/timeslots'
+      fullPath: '/timeslots'
+      preLoaderRoute: typeof AuthenticatedTimeslotsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/venues': {
+      id: '/_authenticated/venues'
+      path: '/venues'
+      fullPath: '/venues'
+      preLoaderRoute: typeof AuthenticatedVenuesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDepartmentsRoute: typeof AuthenticatedDepartmentsRoute
+  AuthenticatedEnrolmentsRoute: typeof AuthenticatedEnrolmentsRoute
+  AuthenticatedExamPeriodsRoute: typeof AuthenticatedExamPeriodsRoute
+  AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
+  AuthenticatedFacultiesRoute: typeof AuthenticatedFacultiesRoute
+  AuthenticatedHolidaysRoute: typeof AuthenticatedHolidaysRoute
+  AuthenticatedLecturersRoute: typeof AuthenticatedLecturersRoute
+  AuthenticatedModulesRoute: typeof AuthenticatedModulesRoute
+  AuthenticatedMyTimetableRoute: typeof AuthenticatedMyTimetableRoute
+  AuthenticatedScheduleRoute: typeof AuthenticatedScheduleRoute
+  AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
+  AuthenticatedTimeslotsRoute: typeof AuthenticatedTimeslotsRoute
+  AuthenticatedVenuesRoute: typeof AuthenticatedVenuesRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDepartmentsRoute: AuthenticatedDepartmentsRoute,
+  AuthenticatedEnrolmentsRoute: AuthenticatedEnrolmentsRoute,
+  AuthenticatedExamPeriodsRoute: AuthenticatedExamPeriodsRoute,
+  AuthenticatedExamsRoute: AuthenticatedExamsRoute,
+  AuthenticatedFacultiesRoute: AuthenticatedFacultiesRoute,
+  AuthenticatedHolidaysRoute: AuthenticatedHolidaysRoute,
+  AuthenticatedLecturersRoute: AuthenticatedLecturersRoute,
+  AuthenticatedModulesRoute: AuthenticatedModulesRoute,
+  AuthenticatedMyTimetableRoute: AuthenticatedMyTimetableRoute,
+  AuthenticatedScheduleRoute: AuthenticatedScheduleRoute,
+  AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
+  AuthenticatedTimeslotsRoute: AuthenticatedTimeslotsRoute,
+  AuthenticatedVenuesRoute: AuthenticatedVenuesRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
