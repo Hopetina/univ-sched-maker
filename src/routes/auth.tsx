@@ -42,7 +42,10 @@ function AuthPage() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     navigate({ to: "/dashboard", replace: true });
   }
 
@@ -57,10 +60,16 @@ function AuthPage() {
       },
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Account created — signing you in");
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError) return toast.error(signInError.message);
+    if (signInError) {
+      toast.error(signInError.message);
+      return;
+    }
     navigate({ to: "/dashboard", replace: true });
   }
 
