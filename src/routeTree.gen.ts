@@ -13,7 +13,17 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
+import { Route as AuthenticatedEnrolmentsRouteImport } from './routes/_authenticated/enrolments'
+import { Route as AuthenticatedExamPeriodsRouteImport } from './routes/_authenticated/exam-periods'
+import { Route as AuthenticatedFacultiesRouteImport } from './routes/_authenticated/faculties'
+import { Route as AuthenticatedHolidaysRouteImport } from './routes/_authenticated/holidays'
+import { Route as AuthenticatedLecturersRouteImport } from './routes/_authenticated/lecturers'
+import { Route as AuthenticatedModulesRouteImport } from './routes/_authenticated/modules'
 import { Route as AuthenticatedMyTimetableRouteImport } from './routes/_authenticated/my-timetable'
+import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
+import { Route as AuthenticatedTimeslotsRouteImport } from './routes/_authenticated/timeslots'
+import { Route as AuthenticatedVenuesRouteImport } from './routes/_authenticated/venues'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,24 +44,96 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDepartmentsRoute =
+  AuthenticatedDepartmentsRouteImport.update({
+    id: '/departments',
+    path: '/departments',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEnrolmentsRoute = AuthenticatedEnrolmentsRouteImport.update({
+  id: '/enrolments',
+  path: '/enrolments',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedExamPeriodsRoute =
+  AuthenticatedExamPeriodsRouteImport.update({
+    id: '/exam-periods',
+    path: '/exam-periods',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFacultiesRoute = AuthenticatedFacultiesRouteImport.update({
+  id: '/faculties',
+  path: '/faculties',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHolidaysRoute = AuthenticatedHolidaysRouteImport.update({
+  id: '/holidays',
+  path: '/holidays',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLecturersRoute = AuthenticatedLecturersRouteImport.update({
+  id: '/lecturers',
+  path: '/lecturers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedModulesRoute = AuthenticatedModulesRouteImport.update({
+  id: '/modules',
+  path: '/modules',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyTimetableRoute =
   AuthenticatedMyTimetableRouteImport.update({
     id: '/my-timetable',
     path: '/my-timetable',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTimeslotsRoute = AuthenticatedTimeslotsRouteImport.update({
+  id: '/timeslots',
+  path: '/timeslots',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedVenuesRoute = AuthenticatedVenuesRouteImport.update({
+  id: '/venues',
+  path: '/venues',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/departments': typeof AuthenticatedDepartmentsRoute
+  '/enrolments': typeof AuthenticatedEnrolmentsRoute
+  '/exam-periods': typeof AuthenticatedExamPeriodsRoute
+  '/faculties': typeof AuthenticatedFacultiesRoute
+  '/holidays': typeof AuthenticatedHolidaysRoute
+  '/lecturers': typeof AuthenticatedLecturersRoute
+  '/modules': typeof AuthenticatedModulesRoute
   '/my-timetable': typeof AuthenticatedMyTimetableRoute
+  '/students': typeof AuthenticatedStudentsRoute
+  '/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/departments': typeof AuthenticatedDepartmentsRoute
+  '/enrolments': typeof AuthenticatedEnrolmentsRoute
+  '/exam-periods': typeof AuthenticatedExamPeriodsRoute
+  '/faculties': typeof AuthenticatedFacultiesRoute
+  '/holidays': typeof AuthenticatedHolidaysRoute
+  '/lecturers': typeof AuthenticatedLecturersRoute
+  '/modules': typeof AuthenticatedModulesRoute
   '/my-timetable': typeof AuthenticatedMyTimetableRoute
+  '/students': typeof AuthenticatedStudentsRoute
+  '/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,20 +141,68 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
+  '/_authenticated/enrolments': typeof AuthenticatedEnrolmentsRoute
+  '/_authenticated/exam-periods': typeof AuthenticatedExamPeriodsRoute
+  '/_authenticated/faculties': typeof AuthenticatedFacultiesRoute
+  '/_authenticated/holidays': typeof AuthenticatedHolidaysRoute
+  '/_authenticated/lecturers': typeof AuthenticatedLecturersRoute
+  '/_authenticated/modules': typeof AuthenticatedModulesRoute
   '/_authenticated/my-timetable': typeof AuthenticatedMyTimetableRoute
+  '/_authenticated/students': typeof AuthenticatedStudentsRoute
+  '/_authenticated/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/_authenticated/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/my-timetable'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/departments'
+    | '/enrolments'
+    | '/exam-periods'
+    | '/faculties'
+    | '/holidays'
+    | '/lecturers'
+    | '/modules'
+    | '/my-timetable'
+    | '/students'
+    | '/timeslots'
+    | '/venues'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/my-timetable'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/departments'
+    | '/enrolments'
+    | '/exam-periods'
+    | '/faculties'
+    | '/holidays'
+    | '/lecturers'
+    | '/modules'
+    | '/my-timetable'
+    | '/students'
+    | '/timeslots'
+    | '/venues'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/dashboard'
+    | '/_authenticated/departments'
+    | '/_authenticated/enrolments'
+    | '/_authenticated/exam-periods'
+    | '/_authenticated/faculties'
+    | '/_authenticated/holidays'
+    | '/_authenticated/lecturers'
+    | '/_authenticated/modules'
     | '/_authenticated/my-timetable'
+    | '/_authenticated/students'
+    | '/_authenticated/timeslots'
+    | '/_authenticated/venues'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -111,6 +241,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/departments': {
+      id: '/_authenticated/departments'
+      path: '/departments'
+      fullPath: '/departments'
+      preLoaderRoute: typeof AuthenticatedDepartmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/enrolments': {
+      id: '/_authenticated/enrolments'
+      path: '/enrolments'
+      fullPath: '/enrolments'
+      preLoaderRoute: typeof AuthenticatedEnrolmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/exam-periods': {
+      id: '/_authenticated/exam-periods'
+      path: '/exam-periods'
+      fullPath: '/exam-periods'
+      preLoaderRoute: typeof AuthenticatedExamPeriodsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/faculties': {
+      id: '/_authenticated/faculties'
+      path: '/faculties'
+      fullPath: '/faculties'
+      preLoaderRoute: typeof AuthenticatedFacultiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/holidays': {
+      id: '/_authenticated/holidays'
+      path: '/holidays'
+      fullPath: '/holidays'
+      preLoaderRoute: typeof AuthenticatedHolidaysRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lecturers': {
+      id: '/_authenticated/lecturers'
+      path: '/lecturers'
+      fullPath: '/lecturers'
+      preLoaderRoute: typeof AuthenticatedLecturersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/modules': {
+      id: '/_authenticated/modules'
+      path: '/modules'
+      fullPath: '/modules'
+      preLoaderRoute: typeof AuthenticatedModulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-timetable': {
       id: '/_authenticated/my-timetable'
       path: '/my-timetable'
@@ -118,17 +297,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyTimetableRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/students': {
+      id: '/_authenticated/students'
+      path: '/students'
+      fullPath: '/students'
+      preLoaderRoute: typeof AuthenticatedStudentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/timeslots': {
+      id: '/_authenticated/timeslots'
+      path: '/timeslots'
+      fullPath: '/timeslots'
+      preLoaderRoute: typeof AuthenticatedTimeslotsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/venues': {
+      id: '/_authenticated/venues'
+      path: '/venues'
+      fullPath: '/venues'
+      preLoaderRoute: typeof AuthenticatedVenuesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDepartmentsRoute: typeof AuthenticatedDepartmentsRoute
+  AuthenticatedEnrolmentsRoute: typeof AuthenticatedEnrolmentsRoute
+  AuthenticatedExamPeriodsRoute: typeof AuthenticatedExamPeriodsRoute
+  AuthenticatedFacultiesRoute: typeof AuthenticatedFacultiesRoute
+  AuthenticatedHolidaysRoute: typeof AuthenticatedHolidaysRoute
+  AuthenticatedLecturersRoute: typeof AuthenticatedLecturersRoute
+  AuthenticatedModulesRoute: typeof AuthenticatedModulesRoute
   AuthenticatedMyTimetableRoute: typeof AuthenticatedMyTimetableRoute
+  AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
+  AuthenticatedTimeslotsRoute: typeof AuthenticatedTimeslotsRoute
+  AuthenticatedVenuesRoute: typeof AuthenticatedVenuesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDepartmentsRoute: AuthenticatedDepartmentsRoute,
+  AuthenticatedEnrolmentsRoute: AuthenticatedEnrolmentsRoute,
+  AuthenticatedExamPeriodsRoute: AuthenticatedExamPeriodsRoute,
+  AuthenticatedFacultiesRoute: AuthenticatedFacultiesRoute,
+  AuthenticatedHolidaysRoute: AuthenticatedHolidaysRoute,
+  AuthenticatedLecturersRoute: AuthenticatedLecturersRoute,
+  AuthenticatedModulesRoute: AuthenticatedModulesRoute,
   AuthenticatedMyTimetableRoute: AuthenticatedMyTimetableRoute,
+  AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
+  AuthenticatedTimeslotsRoute: AuthenticatedTimeslotsRoute,
+  AuthenticatedVenuesRoute: AuthenticatedVenuesRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
