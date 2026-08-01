@@ -55,7 +55,7 @@ export const listRows = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!READABLE_TABLES.includes(data.table)) throw new Error("Unknown table");
     const repos = createRepositories(context.supabase as never);
-    return createRepositoriesList(repos, data);
+    return (await createRepositoriesList(repos, data)) as unknown as any[];
   });
 
 function createRepositoriesList(
@@ -81,7 +81,7 @@ function createRepositoriesList(
     orderBy: data.orderBy ?? "created_at",
     ascending: data.ascending ?? true,
     limit: data.limit ?? 500,
-  } as never) as Promise<Record<string, unknown>[]>;
+  } as never) as Promise<any[]>;
 }
 
 export const saveRow = createServerFn({ method: "POST" })
@@ -103,7 +103,7 @@ export const saveRow = createServerFn({ method: "POST" })
       entityId: row.id,
       details: data.values,
     });
-    return row as Record<string, unknown>;
+    return row as unknown as any;
   });
 
 export const deleteRow = createServerFn({ method: "POST" })
