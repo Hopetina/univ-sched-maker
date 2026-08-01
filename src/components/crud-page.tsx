@@ -46,7 +46,7 @@ export interface CrudPageProps {
 
 export function lookup(rows: Row[] | undefined, id: string | null | undefined, key = "name") {
   if (!id) return "—";
-  const row = rows?.find((r) => r.id === id);
+  const row = rows?.find((r) => r["id"] === id);
   return row ? String(row[key] ?? row["name"] ?? row["code"] ?? id) : "—";
 }
 
@@ -64,7 +64,10 @@ export function CrudPage(props: CrudPageProps) {
   const results = useQueries({
     queries: tables.map((t) => ({
       queryKey: ["rows", t],
-      queryFn: () => list({ data: { table: t as never, orderBy: t === table ? orderBy : undefined } }) as Promise<Row[]>,
+      queryFn: () =>
+        list({
+          data: { table: t as never, ...(t === table && orderBy ? { orderBy } : {}) },
+        }) as Promise<Row[]>,
     })),
   });
 
