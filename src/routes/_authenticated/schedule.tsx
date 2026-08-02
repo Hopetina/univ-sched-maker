@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, CheckCircle2, Wand2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { getSchedulingData, submitSchedule, validateSchedule } from "@/lib/exam.functions";
 import type { ValidationResult } from "@/lib/scheduling/types";
+import { CONFLICT_STORAGE_KEY } from "@/routes/_authenticated/conflicts";
 import { useSession } from "@/hooks/use-session";
 import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 export const Route = createFileRoute("/_authenticated/schedule")({
   head: () => ({
