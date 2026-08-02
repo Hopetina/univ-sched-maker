@@ -1,12 +1,20 @@
-// Scheduling engine: pure, in-memory rule evaluation over a prefetched context.
+// Scheduling engine: composes the individual rule services over a prefetched context.
 import type { Repositories } from "../db/repositories.server";
+import {
+  checkCapacityConflict,
+  checkDuplicateExam,
+  checkHolidayRules,
+  checkInvigilatorConflict,
+  checkStudentConflict,
+  checkVenueConflict,
+} from "./rules.server";
 import type {
-  AffectedStudent,
   Conflict,
   SchedulingSuggestion,
   ScheduleRequest,
   ValidationResult,
 } from "./types";
+
 
 type Timeslot = { id: string; exam_period_id: string; slot_date: string; start_time: string; end_time: string; label: string };
 type Venue = { id: string; name: string; code: string; capacity: number; is_active: boolean };
