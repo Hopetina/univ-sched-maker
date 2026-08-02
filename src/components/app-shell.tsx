@@ -37,6 +37,8 @@ const NAV: { group: string; items: NavItem[] }[] = [
     group: "Scheduling",
     items: [
       { to: "/schedule", label: "Scheduling engine", icon: Sparkles, access: "admin" },
+      { to: "/conflicts", label: "Conflict details", icon: AlertTriangle, access: "admin" },
+
       { to: "/exams", label: "Exams", icon: ClipboardList, access: "admin" },
       { to: "/exam-periods", label: "Exam periods", icon: CalendarClock, access: "sysadmin" },
       { to: "/timeslots", label: "Timeslots", icon: CalendarDays, access: "sysadmin" },
