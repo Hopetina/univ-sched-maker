@@ -240,7 +240,15 @@ function SchedulePage() {
                   </div>
                 ))
               )}
+              {result && !result.valid ? (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/conflicts">
+                    View full conflict details <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              ) : null}
             </CardContent>
+
           </Card>
 
           {result && !result.valid ? (
