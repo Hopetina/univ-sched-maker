@@ -76,153 +76,45 @@ export async function loadSchedulingContext(
   };
 }
 
-function isWeekend(date: string): boolean {
-  const day = new Date(`${date}T00:00:00Z`).getUTCDay();
-  return day === 0 || day === 6;
-}
-
-function describeTimeslot(slot: Timeslot) {
-  return {
-    id: slot.id,
-    date: slot.slot_date,
-    startTime: slot.start_time,
-    endTime: slot.end_time,
-    label: slot.label,
-  };
-}
-
-/** Evaluates every business rule for one requested placement. */
+/**
+ * Evaluates EVERY business rule for one requested placement and returns the full
+ * list of conflicts — evaluation never stops at the first failure.
+ */
 export function evaluateRequest(
   ctx: SchedulingContext,
   request: ScheduleRequest,
 ): { conflicts: Conflict[]; enrolledStudents: number; venueCapacity: number } {
-  const conflicts: Conflict[] = [];
   const slot = ctx.timeslots.find((t) => t.id === request.timeslotId);
   const venue = ctx.venues.find((v) => v.id === request.venueId);
-  const module = ctx.modules.get(request.moduleId);
-  const enrolments = ctx.enrolmentsByModule.get(request.moduleId) ?? [];
-  const enrolledStudents = enrolments.length;
+  const enrolledStudents = (ctx.enrolmentsByModule.get(request.moduleId) ?? []).length;
   const venueCapacity = venue?.capacity ?? 0;
 
   if (!slot || slot.exam_period_id !== ctx.period.id) {
-    conflicts.push({
-      code: "TIMESLOT_NOT_IN_PERIOD",
-      severity: "blocking",
-      reason: "The selected timeslot does not belong to the selected examination period.",
-    });
-    return { conflicts, enrolledStudents, venueCapacity };
+    return {
+      conflicts: [
+        {
+          code: "TIMESLOT_NOT_IN_PERIOD",
+          severity: "blocking",
+          reason: "The selected timeslot does not belong to the selected examination period.",
+        },
+      ],
+      enrolledStudents,
+      venueCapacity,
+    };
   }
 
-  // Rule 7 — weekends
-  if (!ctx.period.allow_weekends && isWeekend(slot.slot_date)) {
-    conflicts.push({
-      code: "WEEKEND_RESTRICTION",
-      severity: "blocking",
-      reason: `${slot.slot_date} falls on a weekend and this exam period does not permit weekend examinations.`,
-      conflictingTimeslot: describeTimeslot(slot),
-    });
-  }
-
-  // Rule 6 — public holidays
-  if (ctx.holidays.has(slot.slot_date)) {
-    conflicts.push({
-      code: "PUBLIC_HOLIDAY",
-      severity: "blocking",
-      reason: `${slot.slot_date} is a gazetted public holiday. Examinations may not be scheduled on public holidays.`,
-      conflictingTimeslot: describeTimeslot(slot),
-    });
-  }
-
-  const otherExams = ctx.exams.filter((e) => e.id !== request.examId);
-
-  // Rule 4 — duplicate exam in the same period
-  const duplicate = otherExams.find((e) => e.module_id === request.moduleId);
-  if (duplicate) {
-    const dupSlot = ctx.timeslots.find((t) => t.id === duplicate.timeslot_id);
-    conflicts.push({
-      code: "DUPLICATE_EXAM",
-      severity: "blocking",
-      reason: `${module?.code ?? "This module"} already has an examination scheduled in ${ctx.period.name}.`,
-      conflictingModule: module ? { id: module.id, code: module.code, name: module.name } : null,
-      conflictingTimeslot: dupSlot ? describeTimeslot(dupSlot) : null,
-    });
-  }
-
-  const examsInSlot = otherExams.filter((e) => e.timeslot_id === slot.id);
-
-  // Rule 1 — venue double booking
-  const venueClash = examsInSlot.find((e) => e.venue_id === request.venueId);
-  if (venueClash) {
-    const clashModule = ctx.modules.get(venueClash.module_id);
-    conflicts.push({
-      code: "VENUE_DOUBLE_BOOKED",
-      severity: "blocking",
-      reason: `${venue?.name ?? "The venue"} is already booked in this timeslot.`,
-      conflictingModule: clashModule ? { id: clashModule.id, code: clashModule.code, name: clashModule.name } : null,
-      conflictingTimeslot: describeTimeslot(slot),
-      conflictingVenue: venue ? { id: venue.id, code: venue.code, name: venue.name } : null,
-    });
-  }
-
-  // Rule 2 — invigilator double booking
-  if (request.invigilatorId) {
-    const invigilatorClash = examsInSlot.find((e) => e.invigilator_id === request.invigilatorId);
-    if (invigilatorClash) {
-      const clashModule = ctx.modules.get(invigilatorClash.module_id);
-      const lecturer = ctx.lecturers.find((l) => l.id === request.invigilatorId);
-      conflicts.push({
-        code: "INVIGILATOR_DOUBLE_BOOKED",
-        severity: "blocking",
-        reason: `${lecturer?.full_name ?? "The invigilator"} is already invigilating another examination in this timeslot.`,
-        conflictingModule: clashModule ? { id: clashModule.id, code: clashModule.code, name: clashModule.name } : null,
-        conflictingTimeslot: describeTimeslot(slot),
-      });
-    }
-  }
-
-  // Rule 3 — venue capacity
-  if (!venue) {
-    conflicts.push({ code: "VENUE_CAPACITY", severity: "blocking", reason: "The selected venue could not be found." });
-  } else if (venue.capacity < enrolledStudents) {
-    conflicts.push({
-      code: "VENUE_CAPACITY",
-      severity: "blocking",
-      reason: `${venue.name} seats ${venue.capacity} but ${enrolledStudents} students are enrolled for ${module?.code ?? "this module"}.`,
-      conflictingVenue: { id: venue.id, code: venue.code, name: venue.name },
-    });
-  }
-
-  // Rule 5 — student clash detection, based on ACTUAL enrolments (not year level)
-  const enrolledIds = new Map(enrolments.map((e) => [e.student_id, e.is_repeat]));
-  for (const exam of examsInSlot) {
-    const otherEnrolments = ctx.enrolmentsByModule.get(exam.module_id) ?? [];
-    const affected: AffectedStudent[] = [];
-    for (const other of otherEnrolments) {
-      if (!enrolledIds.has(other.student_id)) continue;
-      const student = ctx.students.get(other.student_id);
-      if (!student) continue;
-      affected.push({
-        id: student.id,
-        studentNumber: student.student_number,
-        fullName: student.full_name,
-        isRepeat: Boolean(enrolledIds.get(other.student_id)) || other.is_repeat,
-      });
-    }
-    if (affected.length > 0) {
-      const clashModule = ctx.modules.get(exam.module_id);
-      conflicts.push({
-        code: "STUDENT_CLASH",
-        severity: "blocking",
-        reason: `${affected.length} student(s) enrolled for ${module?.code ?? "this module"} are also writing ${clashModule?.code ?? "another module"} in this timeslot.`,
-        conflictingModule: clashModule ? { id: clashModule.id, code: clashModule.code, name: clashModule.name } : null,
-        conflictingTimeslot: describeTimeslot(slot),
-        affectedStudents: affected,
-      });
-    }
-  }
+  const conflicts: Conflict[] = [
+    ...checkHolidayRules(ctx, slot),
+    ...checkDuplicateExam(ctx, request),
+    ...checkVenueConflict(ctx, request, slot),
+    ...checkInvigilatorConflict(ctx, request, slot),
+    ...checkCapacityConflict(ctx, request),
+    ...checkStudentConflict(ctx, request, slot),
+  ];
 
   return { conflicts, enrolledStudents, venueCapacity };
 }
+
 
 /** Suggests alternative timeslot/venue pairs that satisfy every rule. */
 export function suggestAlternatives(
