@@ -192,3 +192,6 @@ export function validateRequest(ctx: SchedulingContext, request: ScheduleRequest
     suggestions: conflicts.length === 0 ? [] : suggestAlternatives(ctx, request),
   };
 }
+
+/** Public alias: recommends conflict-free timeslot/venue pairs. */
+export const suggestAlternativeTimeslots = suggestAlternatives;
