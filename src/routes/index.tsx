@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "ExamSched — Conflict-Free University Exam Scheduling" },
       {
         property: "og:description",
-        content: "Schedule university examinations with enrolment-based clash detection, venue capacity checks, invigilator rules and a full audit trail.",
+        content: "An examination scheduling engine: validates every booking and suggests conflict-free alternatives.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

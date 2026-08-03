@@ -79,24 +79,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ExamSched — Conflict-Free University Exam Scheduling" },
+      { title: "ExamSched — University Examination Scheduling" },
       {
         name: "description",
         content:
-          "Schedule university examinations with enrolment-based clash detection, venue capacity checks, invigilator rules and a full audit trail.",
+          "Conflict-aware university examination scheduling: venues, timeslots, enrolment-based clash detection and audit trails.",
       },
-      { property: "og:title", content: "ExamSched — Conflict-Free University Exam Scheduling" },
+      { property: "og:title", content: "ExamSched — University Examination Scheduling" },
       {
         property: "og:description",
-        content: "Schedule university examinations with enrolment-based clash detection, venue capacity checks, invigilator rules and a full audit trail.",
+        content: "Conflict-aware university examination scheduling with enrolment-based clash detection.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "ExamSched — Conflict-Free University Exam Scheduling" },
-      { name: "twitter:description", content: "Schedule university examinations with enrolment-based clash detection, venue capacity checks, invigilator rules and a full audit trail." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1a94bdd5-69ae-4cd0-91f0-98e0c8d7e583/id-preview-8436cdbf--ab7814ae-0b1b-4834-9e2f-e6e57e185127.lovable.app-1785629140597.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1a94bdd5-69ae-4cd0-91f0-98e0c8d7e583/id-preview-8436cdbf--ab7814ae-0b1b-4834-9e2f-e6e57e185127.lovable.app-1785629140597.png" },
     ],
     links: [
       {
