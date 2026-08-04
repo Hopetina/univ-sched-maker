@@ -14,6 +14,7 @@ import {
   LogOut,
   MapPin,
   ScrollText,
+  ShieldCheck,
   Sparkles,
   Users,
   UserSquare2,
