@@ -26,6 +26,7 @@ import { Route as AuthenticatedMyTimetableRouteImport } from './routes/_authenti
 import { Route as AuthenticatedScheduleRouteImport } from './routes/_authenticated/schedule'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedTimeslotsRouteImport } from './routes/_authenticated/timeslots'
+import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedVenuesRouteImport } from './routes/_authenticated/venues'
 
 const IndexRoute = IndexRouteImport.update({
@@ -115,6 +116,11 @@ const AuthenticatedTimeslotsRoute = AuthenticatedTimeslotsRouteImport.update({
   path: '/timeslots',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedVenuesRoute = AuthenticatedVenuesRouteImport.update({
   id: '/venues',
   path: '/venues',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/students': typeof AuthenticatedStudentsRoute
   '/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/users': typeof AuthenticatedUsersRoute
   '/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRoutesByTo {
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/students': typeof AuthenticatedStudentsRoute
   '/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/users': typeof AuthenticatedUsersRoute
   '/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRoutesById {
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRoute
   '/_authenticated/timeslots': typeof AuthenticatedTimeslotsRoute
+  '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/venues': typeof AuthenticatedVenuesRoute
 }
 export interface FileRouteTypes {
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/students'
     | '/timeslots'
+    | '/users'
     | '/venues'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/students'
     | '/timeslots'
+    | '/users'
     | '/venues'
   id:
     | '__root__'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/schedule'
     | '/_authenticated/students'
     | '/_authenticated/timeslots'
+    | '/_authenticated/users'
     | '/_authenticated/venues'
   fileRoutesById: FileRoutesById
 }
@@ -368,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTimeslotsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/users': {
+      id: '/_authenticated/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/venues': {
       id: '/_authenticated/venues'
       path: '/venues'
@@ -393,6 +412,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedScheduleRoute: typeof AuthenticatedScheduleRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
   AuthenticatedTimeslotsRoute: typeof AuthenticatedTimeslotsRoute
+  AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedVenuesRoute: typeof AuthenticatedVenuesRoute
 }
 
@@ -411,6 +431,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedScheduleRoute: AuthenticatedScheduleRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
   AuthenticatedTimeslotsRoute: AuthenticatedTimeslotsRoute,
+  AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedVenuesRoute: AuthenticatedVenuesRoute,
 }
 
