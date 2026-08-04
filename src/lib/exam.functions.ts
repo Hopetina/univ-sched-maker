@@ -228,8 +228,9 @@ export const getMyTimetable = createServerFn({ method: "GET" })
     const repos = createRepositories(context.supabase as never);
     const email = String(context.claims["email"] ?? "");
     const [students, lecturers, exams, modules, timeslots, venues, enrolments] = await Promise.all([
-      repos.students.list({ filters: { email }, limit: 1 }),
-      repos.lecturers.list({ filters: { email }, limit: 1 }),
+      repos.students.list({ filters: { profile_id: context.userId }, limit: 1 }),
+      repos.lecturers.list({ filters: { profile_id: context.userId }, limit: 1 }),
+
       repos.exams.list({}),
       repos.modules.list({}),
       repos.timeslots.list({}),
