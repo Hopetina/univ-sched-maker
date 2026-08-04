@@ -1,8 +1,11 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  BarChart3,
   BookOpen,
   Building2,
+  FileDown,
+
   CalendarClock,
   CalendarDays,
   ClipboardList,
@@ -11,6 +14,7 @@ import {
   LogOut,
   MapPin,
   ScrollText,
+  ShieldCheck,
   Sparkles,
   Users,
   UserSquare2,
@@ -31,8 +35,11 @@ const NAV: { group: string; items: NavItem[] }[] = [
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, access: "any" },
       { to: "/my-timetable", label: "My timetable", icon: CalendarDays, access: "any" },
+      { to: "/analytics", label: "Analytics", icon: BarChart3, access: "admin" },
+      { to: "/reports", label: "Timetable reports", icon: FileDown, access: "admin" },
     ],
   },
+
   {
     group: "Scheduling",
     items: [
@@ -57,8 +64,12 @@ const NAV: { group: string; items: NavItem[] }[] = [
   },
   {
     group: "Governance",
-    items: [{ to: "/audit", label: "Audit trail", icon: ScrollText, access: "admin" }],
+    items: [
+      { to: "/users", label: "Users & roles", icon: ShieldCheck, access: "sysadmin" },
+      { to: "/audit", label: "Audit trail", icon: ScrollText, access: "admin" },
+    ],
   },
+
 ];
 
 const ROLE_LABEL: Record<string, string> = {

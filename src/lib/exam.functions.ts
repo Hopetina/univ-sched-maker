@@ -32,22 +32,24 @@ export const getSessionContext = createServerFn({ method: "GET" })
     let studentId: string | null = null;
     let lecturerId: string | null = null;
     if (roleNames.includes("student")) {
-      const matches = await repos.students.list({ filters: { email }, limit: 1 });
+      const matches = await repos.students.list({ filters: { profile_id: context.userId }, limit: 1 });
       studentId = matches[0]?.id ?? null;
     }
     if (roleNames.includes("lecturer")) {
-      const matches = await repos.lecturers.list({ filters: { email }, limit: 1 });
+      const matches = await repos.lecturers.list({ filters: { profile_id: context.userId }, limit: 1 });
       lecturerId = matches[0]?.id ?? null;
     }
     return {
       userId: context.userId,
       email,
       fullName: profile?.full_name ?? "",
+      departmentId: profile?.department_id ?? null,
       roles: roleNames,
       studentId,
       lecturerId,
     };
   });
+
 
 export const listRows = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -224,10 +226,11 @@ export const getMyTimetable = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const repos = createRepositories(context.supabase as never);
-    const email = String(context.claims["email"] ?? "");
+    
     const [students, lecturers, exams, modules, timeslots, venues, enrolments] = await Promise.all([
-      repos.students.list({ filters: { email }, limit: 1 }),
-      repos.lecturers.list({ filters: { email }, limit: 1 }),
+      repos.students.list({ filters: { profile_id: context.userId }, limit: 1 }),
+      repos.lecturers.list({ filters: { profile_id: context.userId }, limit: 1 }),
+
       repos.exams.list({}),
       repos.modules.list({}),
       repos.timeslots.list({}),
@@ -258,4 +261,66 @@ export const getMyTimetable = createServerFn({ method: "GET" })
       }));
 
     return { student, lecturer, rows };
+  });
+
+export const listManagedUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertSystemAdmin, listUsersWithRoles } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return listUsersWithRoles(repos);
+  });
+
+export const updateUserRoles = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; roles: AppRole[] }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, setUserRoles } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return setUserRoles(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.userId,
+      data.roles,
+    );
+  });
+
+export const updateUserDepartment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; departmentId: string | null }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, setUserDepartment } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return setUserDepartment(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.userId,
+      data.departmentId,
+    );
+  });
+
+export const getTimetableReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { examPeriodId?: string | null; departmentId?: string | null }) => input)
+  .handler(async ({ data, context }) => {
+    const { buildTimetableReport } = await import("./reporting.server");
+    const repos = createRepositories(context.supabase as never);
+    return buildTimetableReport(repos, data);
+  });
+
+export const getAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { buildAnalytics } = await import("./reporting.server");
+    const repos = createRepositories(context.supabase as never);
+    const [roles, profile] = await Promise.all([
+      repos.userRoles.list({ filters: { user_id: context.userId } }),
+      repos.profiles.getById(context.userId),
+    ]);
+    const names = (roles as unknown as { role: AppRole }[]).map((r) => r.role);
+    const scoped = names.includes("system_admin") ? null : (profile?.department_id ?? null);
+    return buildAnalytics(repos, scoped);
   });

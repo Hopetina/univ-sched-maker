@@ -6,10 +6,12 @@ export interface SessionContext {
   userId: string;
   email: string;
   fullName: string;
+  departmentId: string | null;
   roles: AppRole[];
   studentId: string | null;
   lecturerId: string | null;
 }
+
 
 export function useSession() {
   const fetchSession = useServerFn(getSessionContext);

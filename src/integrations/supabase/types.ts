@@ -530,6 +530,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_department: {
+        Args: { _department_id: string }
+        Returns: boolean
+      }
+      can_manage_module: { Args: { _module_id: string }; Returns: boolean }
+      current_department_id: { Args: never; Returns: string }
       current_user_email: { Args: never; Returns: string }
       has_role: {
         Args: {
