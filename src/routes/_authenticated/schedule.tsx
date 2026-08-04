@@ -1,13 +1,12 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, CheckCircle2, ExternalLink, Wand2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { getSchedulingData, submitSchedule, validateSchedule } from "@/lib/exam.functions";
 import type { ValidationResult } from "@/lib/scheduling/types";
-import { CONFLICT_STORAGE_KEY } from "@/routes/_authenticated/conflicts";
 import { useSession } from "@/hooks/use-session";
 import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 
 export const Route = createFileRoute("/_authenticated/schedule")({
   head: () => ({
@@ -63,30 +61,10 @@ function SchedulePage() {
     invigilatorId: invigilatorId || null,
   };
 
-  const persist = (res: ValidationResult | null) => {
-    if (!res) return;
-    const slot = timeslots.find((t: any) => t.id === timeslotId);
-    const module = (data?.modules ?? []).find((m: any) => m.id === moduleId);
-    const venue = (data?.venues ?? []).find((v: any) => v.id === venueId);
-    window.sessionStorage.setItem(
-      CONFLICT_STORAGE_KEY,
-      JSON.stringify({
-        moduleLabel: module ? `${module.code} — ${module.name}` : "",
-        timeslotLabel: slot
-          ? `${slot.slot_date} · ${String(slot.start_time).slice(0, 5)}–${String(slot.end_time).slice(0, 5)}`
-          : "",
-        venueLabel: venue ? `${venue.name} (seats ${venue.capacity})` : "",
-        checkedAt: new Date().toISOString(),
-        result: res,
-      }),
-    );
-  };
-
   const check = useMutation({
     mutationFn: () => validate({ data: request }) as Promise<ValidationResult>,
     onSuccess: (res) => {
       setResult(res);
-      persist(res);
       toast[res.valid ? "success" : "error"](
         res.valid ? "No conflicts — this placement is valid" : `${res.conflicts.length} conflict(s) found`,
       );
@@ -98,7 +76,6 @@ function SchedulePage() {
     mutationFn: () => submit({ data: request }) as Promise<any>,
     onSuccess: (res) => {
       setResult(res.validation);
-      persist(res.validation);
       if (res.ok) {
         toast.success("Examination scheduled");
         queryClient.invalidateQueries({ queryKey: ["scheduling-data"] });
@@ -110,7 +87,6 @@ function SchedulePage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
-
 
   if (!isAdmin) {
     return <PageHeader title="Scheduling engine" description="Only administrators may schedule examinations." />;
@@ -240,15 +216,7 @@ function SchedulePage() {
                   </div>
                 ))
               )}
-              {result && !result.valid ? (
-                <Button asChild variant="outline" size="sm">
-                  <Link to="/conflicts">
-                    View full conflict details <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-              ) : null}
             </CardContent>
-
           </Card>
 
           {result && !result.valid ? (
