@@ -1,8 +1,11 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  BarChart3,
   BookOpen,
   Building2,
+  FileDown,
+
   CalendarClock,
   CalendarDays,
   ClipboardList,
@@ -31,8 +34,11 @@ const NAV: { group: string; items: NavItem[] }[] = [
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, access: "any" },
       { to: "/my-timetable", label: "My timetable", icon: CalendarDays, access: "any" },
+      { to: "/analytics", label: "Analytics", icon: BarChart3, access: "admin" },
+      { to: "/reports", label: "Timetable reports", icon: FileDown, access: "admin" },
     ],
   },
+
   {
     group: "Scheduling",
     items: [
