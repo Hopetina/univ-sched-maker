@@ -32,22 +32,24 @@ export const getSessionContext = createServerFn({ method: "GET" })
     let studentId: string | null = null;
     let lecturerId: string | null = null;
     if (roleNames.includes("student")) {
-      const matches = await repos.students.list({ filters: { email }, limit: 1 });
+      const matches = await repos.students.list({ filters: { profile_id: context.userId }, limit: 1 });
       studentId = matches[0]?.id ?? null;
     }
     if (roleNames.includes("lecturer")) {
-      const matches = await repos.lecturers.list({ filters: { email }, limit: 1 });
+      const matches = await repos.lecturers.list({ filters: { profile_id: context.userId }, limit: 1 });
       lecturerId = matches[0]?.id ?? null;
     }
     return {
       userId: context.userId,
       email,
       fullName: profile?.full_name ?? "",
+      departmentId: profile?.department_id ?? null,
       roles: roleNames,
       studentId,
       lecturerId,
     };
   });
+
 
 export const listRows = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
