@@ -63,8 +63,12 @@ const NAV: { group: string; items: NavItem[] }[] = [
   },
   {
     group: "Governance",
-    items: [{ to: "/audit", label: "Audit trail", icon: ScrollText, access: "admin" }],
+    items: [
+      { to: "/users", label: "Users & roles", icon: ShieldCheck, access: "sysadmin" },
+      { to: "/audit", label: "Audit trail", icon: ScrollText, access: "admin" },
+    ],
   },
+
 ];
 
 const ROLE_LABEL: Record<string, string> = {
