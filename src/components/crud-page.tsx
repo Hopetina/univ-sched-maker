@@ -65,6 +65,8 @@ export interface CrudPageProps {
   filters?: (refs: Record<string, Row[]>) => CrudFilter[];
   /** Extra buttons rendered next to "New". */
   extraActions?: ReactNode;
+  /** Prefills the search box, e.g. from a "View linked record" deep link. */
+  initialSearch?: string;
 }
 
 
@@ -84,7 +86,7 @@ export function CrudPage(props: CrudPageProps) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [form, setForm] = useState<Record<string, any>>({});
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(props.initialSearch ?? "");
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
   const tables = [table, ...refs];

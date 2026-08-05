@@ -1,10 +1,12 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  AlertTriangle,
   BarChart3,
   BookOpen,
   Building2,
   FileDown,
+  FileUp,
 
   CalendarClock,
   CalendarDays,
@@ -44,10 +46,18 @@ const NAV: { group: string; items: NavItem[] }[] = [
     group: "Scheduling",
     items: [
       { to: "/schedule", label: "Scheduling engine", icon: Sparkles, access: "admin" },
+      { to: "/conflicts", label: "Conflicts", icon: AlertTriangle, access: "admin" },
       { to: "/exams", label: "Exams", icon: ClipboardList, access: "admin" },
       { to: "/exam-periods", label: "Exam periods", icon: CalendarClock, access: "sysadmin" },
       { to: "/timeslots", label: "Timeslots", icon: CalendarDays, access: "sysadmin" },
       { to: "/holidays", label: "Public holidays", icon: CalendarDays, access: "sysadmin" },
+    ],
+  },
+  {
+    group: "Imports",
+    items: [
+      { to: "/import-students", label: "Import students", icon: FileUp, access: "admin" },
+      { to: "/import-exams", label: "Import exam timetable", icon: FileUp, access: "admin" },
     ],
   },
   {
@@ -94,6 +104,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const visible = (item: NavItem) =>
     item.access === "any" || (item.access === "admin" && isAdmin) || (item.access === "sysadmin" && isSystemAdmin);
+
+  const showPasswordBanner = Boolean(session?.passwordResetRequired) && pathname !== "/reset-password";
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -176,7 +188,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               ))}
           </div>
         </div>
-        <main className="flex-1 p-5 lg:p-8">{children}</main>
+        <main className="flex-1 p-5 lg:p-8">
+          {showPasswordBanner ? (
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-400/50 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <span>A System Admin requires you to change your password before continuing.</span>
+              <Button size="sm" onClick={() => navigate({ to: "/reset-password" })}>
+                Change password now
+              </Button>
+            </div>
+          ) : null}
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedConflictsRouteImport } from './routes/_authenticated/conflicts'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
 import { Route as AuthenticatedEnrolmentsRouteImport } from './routes/_authenticated/enrolments'
@@ -22,6 +23,8 @@ import { Route as AuthenticatedExamPeriodsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedFacultiesRouteImport } from './routes/_authenticated/faculties'
 import { Route as AuthenticatedHolidaysRouteImport } from './routes/_authenticated/holidays'
+import { Route as AuthenticatedImportExamsRouteImport } from './routes/_authenticated/import-exams'
+import { Route as AuthenticatedImportStudentsRouteImport } from './routes/_authenticated/import-students'
 import { Route as AuthenticatedLecturersRouteImport } from './routes/_authenticated/lecturers'
 import { Route as AuthenticatedModulesRouteImport } from './routes/_authenticated/modules'
 import { Route as AuthenticatedMyTimetableRouteImport } from './routes/_authenticated/my-timetable'
@@ -61,6 +64,11 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConflictsRoute = AuthenticatedConflictsRouteImport.update({
+  id: '/conflicts',
+  path: '/conflicts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -98,6 +106,18 @@ const AuthenticatedHolidaysRoute = AuthenticatedHolidaysRouteImport.update({
   path: '/holidays',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedImportExamsRoute =
+  AuthenticatedImportExamsRouteImport.update({
+    id: '/import-exams',
+    path: '/import-exams',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedImportStudentsRoute =
+  AuthenticatedImportStudentsRouteImport.update({
+    id: '/import-students',
+    path: '/import-students',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLecturersRoute = AuthenticatedLecturersRouteImport.update({
   id: '/lecturers',
   path: '/lecturers',
@@ -151,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/conflicts': typeof AuthenticatedConflictsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/enrolments': typeof AuthenticatedEnrolmentsRoute
@@ -158,6 +179,8 @@ export interface FileRoutesByFullPath {
   '/exams': typeof AuthenticatedExamsRoute
   '/faculties': typeof AuthenticatedFacultiesRoute
   '/holidays': typeof AuthenticatedHolidaysRoute
+  '/import-exams': typeof AuthenticatedImportExamsRoute
+  '/import-students': typeof AuthenticatedImportStudentsRoute
   '/lecturers': typeof AuthenticatedLecturersRoute
   '/modules': typeof AuthenticatedModulesRoute
   '/my-timetable': typeof AuthenticatedMyTimetableRoute
@@ -174,6 +197,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/conflicts': typeof AuthenticatedConflictsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/enrolments': typeof AuthenticatedEnrolmentsRoute
@@ -181,6 +205,8 @@ export interface FileRoutesByTo {
   '/exams': typeof AuthenticatedExamsRoute
   '/faculties': typeof AuthenticatedFacultiesRoute
   '/holidays': typeof AuthenticatedHolidaysRoute
+  '/import-exams': typeof AuthenticatedImportExamsRoute
+  '/import-students': typeof AuthenticatedImportStudentsRoute
   '/lecturers': typeof AuthenticatedLecturersRoute
   '/modules': typeof AuthenticatedModulesRoute
   '/my-timetable': typeof AuthenticatedMyTimetableRoute
@@ -199,6 +225,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/conflicts': typeof AuthenticatedConflictsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
   '/_authenticated/enrolments': typeof AuthenticatedEnrolmentsRoute
@@ -206,6 +233,8 @@ export interface FileRoutesById {
   '/_authenticated/exams': typeof AuthenticatedExamsRoute
   '/_authenticated/faculties': typeof AuthenticatedFacultiesRoute
   '/_authenticated/holidays': typeof AuthenticatedHolidaysRoute
+  '/_authenticated/import-exams': typeof AuthenticatedImportExamsRoute
+  '/_authenticated/import-students': typeof AuthenticatedImportStudentsRoute
   '/_authenticated/lecturers': typeof AuthenticatedLecturersRoute
   '/_authenticated/modules': typeof AuthenticatedModulesRoute
   '/_authenticated/my-timetable': typeof AuthenticatedMyTimetableRoute
@@ -224,6 +253,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/analytics'
     | '/audit'
+    | '/conflicts'
     | '/dashboard'
     | '/departments'
     | '/enrolments'
@@ -231,6 +261,8 @@ export interface FileRouteTypes {
     | '/exams'
     | '/faculties'
     | '/holidays'
+    | '/import-exams'
+    | '/import-students'
     | '/lecturers'
     | '/modules'
     | '/my-timetable'
@@ -247,6 +279,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/analytics'
     | '/audit'
+    | '/conflicts'
     | '/dashboard'
     | '/departments'
     | '/enrolments'
@@ -254,6 +287,8 @@ export interface FileRouteTypes {
     | '/exams'
     | '/faculties'
     | '/holidays'
+    | '/import-exams'
+    | '/import-students'
     | '/lecturers'
     | '/modules'
     | '/my-timetable'
@@ -271,6 +306,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/analytics'
     | '/_authenticated/audit'
+    | '/_authenticated/conflicts'
     | '/_authenticated/dashboard'
     | '/_authenticated/departments'
     | '/_authenticated/enrolments'
@@ -278,6 +314,8 @@ export interface FileRouteTypes {
     | '/_authenticated/exams'
     | '/_authenticated/faculties'
     | '/_authenticated/holidays'
+    | '/_authenticated/import-exams'
+    | '/_authenticated/import-students'
     | '/_authenticated/lecturers'
     | '/_authenticated/modules'
     | '/_authenticated/my-timetable'
@@ -340,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/conflicts': {
+      id: '/_authenticated/conflicts'
+      path: '/conflicts'
+      fullPath: '/conflicts'
+      preLoaderRoute: typeof AuthenticatedConflictsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -387,6 +432,20 @@ declare module '@tanstack/react-router' {
       path: '/holidays'
       fullPath: '/holidays'
       preLoaderRoute: typeof AuthenticatedHolidaysRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/import-exams': {
+      id: '/_authenticated/import-exams'
+      path: '/import-exams'
+      fullPath: '/import-exams'
+      preLoaderRoute: typeof AuthenticatedImportExamsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/import-students': {
+      id: '/_authenticated/import-students'
+      path: '/import-students'
+      fullPath: '/import-students'
+      preLoaderRoute: typeof AuthenticatedImportStudentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lecturers': {
@@ -458,6 +517,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedConflictsRoute: typeof AuthenticatedConflictsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDepartmentsRoute: typeof AuthenticatedDepartmentsRoute
   AuthenticatedEnrolmentsRoute: typeof AuthenticatedEnrolmentsRoute
@@ -465,6 +525,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
   AuthenticatedFacultiesRoute: typeof AuthenticatedFacultiesRoute
   AuthenticatedHolidaysRoute: typeof AuthenticatedHolidaysRoute
+  AuthenticatedImportExamsRoute: typeof AuthenticatedImportExamsRoute
+  AuthenticatedImportStudentsRoute: typeof AuthenticatedImportStudentsRoute
   AuthenticatedLecturersRoute: typeof AuthenticatedLecturersRoute
   AuthenticatedModulesRoute: typeof AuthenticatedModulesRoute
   AuthenticatedMyTimetableRoute: typeof AuthenticatedMyTimetableRoute
@@ -479,6 +541,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedConflictsRoute: AuthenticatedConflictsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDepartmentsRoute: AuthenticatedDepartmentsRoute,
   AuthenticatedEnrolmentsRoute: AuthenticatedEnrolmentsRoute,
@@ -486,6 +549,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExamsRoute: AuthenticatedExamsRoute,
   AuthenticatedFacultiesRoute: AuthenticatedFacultiesRoute,
   AuthenticatedHolidaysRoute: AuthenticatedHolidaysRoute,
+  AuthenticatedImportExamsRoute: AuthenticatedImportExamsRoute,
+  AuthenticatedImportStudentsRoute: AuthenticatedImportStudentsRoute,
   AuthenticatedLecturersRoute: AuthenticatedLecturersRoute,
   AuthenticatedModulesRoute: AuthenticatedModulesRoute,
   AuthenticatedMyTimetableRoute: AuthenticatedMyTimetableRoute,
@@ -509,3 +574,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { CrudPage, lookup, type Row } from "@/components/crud-page";
 import { useSession } from "@/hooks/use-session";
 
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/students")({
 
 function Page() {
   const { isAdmin, isSystemAdmin } = useSession();
+  const search = useSearch({ strict: false }) as { q?: string };
   return (
     <CrudPage
       table="students"
@@ -24,6 +25,7 @@ function Page() {
       orderBy="student_number"
       refs={["departments"]}
       canWrite={isAdmin}
+      initialSearch={search.q}
       searchPlaceholder="Search name or student number"
       searchText={(r: Row) => `${r["full_name"]} ${r["student_number"]} ${r["email"]}`}
       filters={(refs) => ([{ key: "department_id", label: "Department", options: (refs["departments"] ?? []).map((d: Row) => ({ value: d["id"], label: d["name"] })) }])}

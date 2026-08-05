@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AlertTriangle, CheckCircle2, Wand2 } from "lucide-react";
@@ -37,12 +37,22 @@ function SchedulePage() {
   const submit = useServerFn(submitSchedule);
   const queryClient = useQueryClient();
 
+  const prefill = useSearch({ strict: false }) as {
+    examId?: string;
+    moduleId?: string;
+    periodId?: string;
+    timeslotId?: string;
+    venueId?: string;
+    invigilatorId?: string;
+  };
+
   const { data } = useQuery({ queryKey: ["scheduling-data"], queryFn: () => fetchData() as Promise<any> });
-  const [periodId, setPeriodId] = useState("");
-  const [moduleId, setModuleId] = useState("");
-  const [timeslotId, setTimeslotId] = useState("");
-  const [venueId, setVenueId] = useState("");
-  const [invigilatorId, setInvigilatorId] = useState("");
+  const [periodId, setPeriodId] = useState(prefill.periodId ?? "");
+  const [moduleId, setModuleId] = useState(prefill.moduleId ?? "");
+  const [timeslotId, setTimeslotId] = useState(prefill.timeslotId ?? "");
+  const [venueId, setVenueId] = useState(prefill.venueId ?? "");
+  const [invigilatorId, setInvigilatorId] = useState(prefill.invigilatorId ?? "");
+  const [examId] = useState(prefill.examId ?? "");
   const [result, setResult] = useState<ValidationResult | null>(null);
 
   const periods = data?.periods ?? [];
@@ -59,6 +69,7 @@ function SchedulePage() {
     timeslotId,
     venueId,
     invigilatorId: invigilatorId || null,
+    examId: examId || null,
   };
 
   const check = useMutation({
@@ -104,9 +115,16 @@ function SchedulePage() {
       <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
         <Card>
           <CardHeader>
-            <CardTitle className="font-display text-base">Scheduling request</CardTitle>
+            <CardTitle className="font-display text-base">
+              {examId ? "Edit examination" : "Scheduling request"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {examId ? (
+              <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+                Editing an existing examination from the Conflicts dashboard. Submitting will update this exam in place.
+              </p>
+            ) : null}
             <Field label="Exam period">
               <Select value={activePeriod} onValueChange={(v) => { setPeriodId(v); setTimeslotId(""); }}>
                 <SelectTrigger><SelectValue placeholder="Select period" /></SelectTrigger>
@@ -162,7 +180,7 @@ function SchedulePage() {
                 Validate
               </Button>
               <Button className="flex-1" disabled={!ready || save.isPending} onClick={() => save.mutate()}>
-                Submit
+                {examId ? "Save changes" : "Submit"}
               </Button>
             </div>
           </CardContent>

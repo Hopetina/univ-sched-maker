@@ -58,3 +58,22 @@ export interface ScheduleRequest {
   examId?: string | null;
   notes?: string;
 }
+
+export interface ConflictSummaryItem {
+  examId: string;
+  moduleId: string;
+  moduleCode: string;
+  moduleName: string;
+  examPeriodId: string;
+  timeslotId: string;
+  timeslotLabel: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  venueId: string;
+  venueName: string;
+  invigilatorId: string | null;
+  affectedStudentCount: number;
+  conflicts: Conflict[];
+  suggestions: SchedulingSuggestion[];
+}

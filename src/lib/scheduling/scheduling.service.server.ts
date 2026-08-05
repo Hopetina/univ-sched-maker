@@ -1,7 +1,7 @@
 // Service layer: orchestrates repositories + scheduling engine + audit logging.
 import type { Repositories } from "../db/repositories.server";
-import { loadSchedulingContext, validateRequest } from "./engine.server";
-import type { ScheduleRequest, ValidationResult } from "./types";
+import { evaluateRequest, loadSchedulingContext, suggestAlternatives, validateRequest } from "./engine.server";
+import type { ConflictSummaryItem, ScheduleRequest, ValidationResult } from "./types";
 
 export interface Actor {
   userId: string;
@@ -89,4 +89,58 @@ export async function scheduleExam(
   });
 
   return { ok: true, examId: exam.id, validation };
+}
+
+/**
+ * Sweeps every currently-scheduled exam in a period through the same engine used for
+ * new requests (evaluateRequest excludes the exam's own row via examId), surfacing only
+ * the ones that now have blocking conflicts, plus conflict-free suggestions for each.
+ */
+export async function sweepConflicts(repos: Repositories, examPeriodId: string): Promise<ConflictSummaryItem[]> {
+  const ctx = await loadSchedulingContext(repos, examPeriodId);
+  const items: ConflictSummaryItem[] = [];
+
+  for (const exam of ctx.exams) {
+    const request: ScheduleRequest = {
+      moduleId: exam.module_id,
+      examPeriodId,
+      timeslotId: exam.timeslot_id,
+      venueId: exam.venue_id,
+      invigilatorId: exam.invigilator_id,
+      examId: exam.id,
+    };
+    const { conflicts } = evaluateRequest(ctx, request);
+    if (conflicts.length === 0) continue;
+
+    const module = ctx.modules.get(exam.module_id);
+    const slot = ctx.timeslots.find((t) => t.id === exam.timeslot_id);
+    const venue = ctx.venues.find((v) => v.id === exam.venue_id);
+    const suggestions = suggestAlternatives(ctx, request);
+
+    const affected = new Set<string>();
+    for (const conflict of conflicts) {
+      for (const student of conflict.affectedStudents ?? []) affected.add(student.id);
+    }
+
+    items.push({
+      examId: exam.id,
+      moduleId: exam.module_id,
+      moduleCode: module?.code ?? "",
+      moduleName: module?.name ?? "",
+      examPeriodId,
+      timeslotId: exam.timeslot_id,
+      timeslotLabel: slot?.label ?? "",
+      date: slot?.slot_date ?? "",
+      startTime: slot?.start_time ?? "",
+      endTime: slot?.end_time ?? "",
+      venueId: exam.venue_id,
+      venueName: venue?.name ?? "",
+      invigilatorId: exam.invigilator_id,
+      affectedStudentCount: affected.size,
+      conflicts,
+      suggestions,
+    });
+  }
+
+  return items;
 }

@@ -18,6 +18,8 @@ export interface ManagedUser {
   roles: AppRoleName[];
   isActive: boolean;
   lastSignInAt: string | null;
+  passwordResetRequired: boolean;
+  linkedRecord: { type: "student" | "lecturer"; id: string; label: string } | null;
 }
 
 export async function assertSystemAdmin(repos: Repositories, userId: string): Promise<void> {
@@ -36,46 +38,51 @@ function requireDepartment(roles: AppRoleName[], departmentId: string | null) {
   }
 }
 
-async function authUserIndex() {
-  const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  if (error) throw new Error(error.message);
-  const map = new Map<string, { banned: boolean; lastSignInAt: string | null; email: string }>();
-  for (const user of data.users) {
-    const bannedUntil = (user as unknown as { banned_until?: string | null }).banned_until ?? null;
-    map.set(user.id, {
-      banned: Boolean(bannedUntil && new Date(bannedUntil).getTime() > Date.now()),
-      lastSignInAt: user.last_sign_in_at ?? null,
-      email: user.email ?? "",
-    });
-  }
-  return map;
-}
-
 export async function listUsersWithRoles(repos: Repositories): Promise<ManagedUser[]> {
-  const [profiles, roles, authIndex] = await Promise.all([
+  const [profiles, roles, students, lecturers] = await Promise.all([
     repos.profiles.list({ orderBy: "created_at" }),
     repos.userRoles.list({}),
-    authUserIndex(),
+    repos.students.list({}),
+    repos.lecturers.list({}),
   ]);
   const byUser = new Map<string, AppRoleName[]>();
   for (const row of roles as unknown as { user_id: string; role: AppRoleName }[]) {
     byUser.set(row.user_id, [...(byUser.get(row.user_id) ?? []), row.role]);
   }
+  const studentByProfile = new Map(
+    (students as unknown as { id: string; profile_id: string | null; student_number: string; full_name: string }[])
+      .filter((s) => s.profile_id)
+      .map((s) => [s.profile_id as string, s]),
+  );
+  const lecturerByProfile = new Map(
+    (lecturers as unknown as { id: string; profile_id: string | null; staff_number: string; full_name: string }[])
+      .filter((l) => l.profile_id)
+      .map((l) => [l.profile_id as string, l]),
+  );
   return (profiles as unknown as {
     id: string;
     full_name: string;
     email: string;
     department_id: string | null;
+    password_reset_required: boolean;
   }[]).map((profile) => {
-    const auth = authIndex.get(profile.id);
+    const student = studentByProfile.get(profile.id);
+    const lecturer = lecturerByProfile.get(profile.id);
+    const linkedRecord = student
+      ? { type: "student" as const, id: student.id, label: `${student.student_number} — ${student.full_name}` }
+      : lecturer
+        ? { type: "lecturer" as const, id: lecturer.id, label: `${lecturer.staff_number} — ${lecturer.full_name}` }
+        : null;
     return {
       id: profile.id,
       fullName: profile.full_name,
-      email: profile.email || auth?.email || "",
+      email: profile.email || "",
       departmentId: profile.department_id,
       roles: byUser.get(profile.id) ?? [],
-      isActive: auth ? !auth.banned : true,
-      lastSignInAt: auth?.lastSignInAt ?? null,
+      isActive: true,
+      lastSignInAt: null,
+      passwordResetRequired: Boolean(profile.password_reset_required),
+      linkedRecord,
     };
   });
 }
@@ -172,6 +179,7 @@ export async function createManagedUserAccount(
     full_name: input.fullName,
     email,
     department_id: input.departmentId,
+    password_reset_required: true,
   });
   await setUserRoles(repos, actor, userId, roles);
 
@@ -227,6 +235,7 @@ export async function resetManagedUserPassword(
   if (password.length < 8) throw new Error("Password must be at least 8 characters.");
   const { error } = await supabaseAdmin.auth.admin.updateUserById(targetUserId, { password });
   if (error) throw new Error(error.message);
+  await repos.profiles.update(targetUserId, { password_reset_required: true });
   await writeAudit(repos, actor, {
     action: "users.reset_password",
     entity: "profiles",
@@ -256,4 +265,79 @@ export async function setManagedUserActive(
     details: { isActive },
   });
   return { ok: true };
+}
+
+export function randomTemporaryPassword(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(12));
+  return `Tmp-${Array.from(bytes, (b) => b.toString(36).padStart(2, "0")).join("").slice(0, 14)}`;
+}
+
+/** Sets a random password and flags the account so it must be changed at next sign-in. */
+export async function generateTemporaryPassword(
+  repos: Repositories,
+  actor: Actor,
+  targetUserId: string,
+): Promise<{ ok: true; password: string }> {
+  const password = randomTemporaryPassword();
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(targetUserId, { password });
+  if (error) throw new Error(error.message);
+  await repos.profiles.update(targetUserId, { password_reset_required: true });
+  await writeAudit(repos, actor, {
+    action: "users.generate_temp_password",
+    entity: "profiles",
+    entityId: targetUserId,
+    details: {},
+  });
+  return { ok: true, password };
+}
+
+/** Flags the account so the user must change their password at next sign-in, without changing it now. */
+export async function forcePasswordChange(
+  repos: Repositories,
+  actor: Actor,
+  targetUserId: string,
+): Promise<{ ok: true }> {
+  await repos.profiles.update(targetUserId, { password_reset_required: true });
+  await writeAudit(repos, actor, {
+    action: "users.force_password_change",
+    entity: "profiles",
+    entityId: targetUserId,
+    details: {},
+  });
+  return { ok: true };
+}
+
+/** Called by a signed-in user after they change their own password. */
+export async function clearOwnPasswordResetFlag(repos: Repositories, userId: string): Promise<{ ok: true }> {
+  await repos.profiles.update(userId, { password_reset_required: false });
+  return { ok: true };
+}
+
+/** Creates a login account for an existing lecturer record and links it — the approved workflow for staff accounts. */
+export async function createLecturerLoginAccount(
+  repos: Repositories,
+  actor: Actor,
+  lecturerId: string,
+): Promise<{ ok: true; password: string }> {
+  const lecturer = (await repos.lecturers.getById(lecturerId)) as unknown as {
+    id: string;
+    profile_id: string | null;
+    department_id: string;
+    full_name: string;
+    email: string;
+  } | null;
+  if (!lecturer) throw new Error("Lecturer record not found.");
+  if (lecturer.profile_id) throw new Error("This lecturer already has a login account.");
+  if (!lecturer.email) throw new Error("The lecturer record needs an email address first.");
+
+  const password = randomTemporaryPassword();
+  const { userId } = await createManagedUserAccount(repos, actor, {
+    email: lecturer.email,
+    password,
+    fullName: lecturer.full_name,
+    departmentId: lecturer.department_id,
+    roles: ["lecturer"],
+  });
+  await repos.lecturers.update(lecturerId, { profile_id: userId });
+  return { ok: true, password };
 }

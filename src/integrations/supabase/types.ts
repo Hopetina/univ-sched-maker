@@ -311,6 +311,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          password_reset_required: boolean
         }
         Insert: {
           created_at?: string
@@ -318,6 +319,7 @@ export type Database = {
           email?: string
           full_name?: string
           id: string
+          password_reset_required?: boolean
         }
         Update: {
           created_at?: string
@@ -325,6 +327,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          password_reset_required?: boolean
         }
         Relationships: []
       }

@@ -47,7 +47,16 @@ export const getSessionContext = createServerFn({ method: "GET" })
       roles: roleNames,
       studentId,
       lecturerId,
+      passwordResetRequired: Boolean((profile as unknown as { password_reset_required?: boolean } | null)?.password_reset_required),
     };
+  });
+
+export const clearPasswordResetRequired = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { clearOwnPasswordResetFlag } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    return clearOwnPasswordResetFlag(repos, context.userId);
   });
 
 
@@ -186,6 +195,15 @@ export const submitSchedule = createServerFn({ method: "POST" })
       throw new Error("Only administrators may schedule examinations.");
     }
     return scheduleExam(repos, { userId: context.userId, email: String(context.claims["email"] ?? "") }, data);
+  });
+
+export const getConflictDashboard = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { examPeriodId: string }) => input)
+  .handler(async ({ data, context }) => {
+    const { sweepConflicts } = await import("./scheduling/scheduling.service.server");
+    const repos = createRepositories(context.supabase as never);
+    return sweepConflicts(repos, data.examPeriodId);
   });
 
 export const getDashboard = createServerFn({ method: "GET" })
@@ -364,6 +382,48 @@ export const setUserActive = createServerFn({ method: "POST" })
     );
   });
 
+export const generateUserTempPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, generateTemporaryPassword } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return generateTemporaryPassword(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.userId,
+    );
+  });
+
+export const forceUserPasswordChange = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, forcePasswordChange } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return forcePasswordChange(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.userId,
+    );
+  });
+
+export const createLecturerAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { lecturerId: string }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, createLecturerLoginAccount } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return createLecturerLoginAccount(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.lecturerId,
+    );
+  });
+
 export const syncPublicHolidays = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { year: number }) => input)
@@ -414,4 +474,45 @@ export const getAnalytics = createServerFn({ method: "GET" })
     const names = (roles as unknown as { role: AppRole }[]).map((r) => r.role);
     const scoped = names.includes("system_admin") ? null : (profile?.department_id ?? null);
     return buildAnalytics(repos, scoped);
+  });
+
+function assertAdmin(names: AppRole[]) {
+  if (!names.includes("system_admin") && !names.includes("department_admin")) {
+    throw new Error("Only administrators may do this.");
+  }
+}
+
+export const importStudents = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { rows: import("./imports.server").StudentImportRow[] }) => input)
+  .handler(async ({ data, context }) => {
+    const { runStudentImport } = await import("./imports.server");
+    const repos = createRepositories(context.supabase as never);
+    const roles = (await repos.userRoles.list({ filters: { user_id: context.userId } })) as unknown as {
+      role: AppRole;
+    }[];
+    assertAdmin(roles.map((r) => r.role));
+    return runStudentImport(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.rows,
+    );
+  });
+
+export const importExamTimetable = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { examPeriodId: string; rows: import("./imports.server").ExamImportRow[] }) => input)
+  .handler(async ({ data, context }) => {
+    const { runExamTimetableImport } = await import("./imports.server");
+    const repos = createRepositories(context.supabase as never);
+    const roles = (await repos.userRoles.list({ filters: { user_id: context.userId } })) as unknown as {
+      role: AppRole;
+    }[];
+    assertAdmin(roles.map((r) => r.role));
+    return runExamTimetableImport(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.examPeriodId,
+      data.rows,
+    );
   });

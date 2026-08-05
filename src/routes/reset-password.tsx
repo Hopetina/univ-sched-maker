@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 
 import { supabase } from "@/integrations/supabase/client";
+import { clearPasswordResetRequired } from "@/lib/exam.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
+  const clearFlag = useServerFn(clearPasswordResetRequired);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [ready, setReady] = useState(false);
@@ -50,6 +53,9 @@ function ResetPasswordPage() {
     }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password });
+    if (!error) {
+      await clearFlag().catch(() => undefined);
+    }
     setBusy(false);
     if (error) {
       toast.error(error.message);

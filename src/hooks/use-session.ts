@@ -10,6 +10,7 @@ export interface SessionContext {
   roles: AppRole[];
   studentId: string | null;
   lecturerId: string | null;
+  passwordResetRequired: boolean;
 }
 
 
