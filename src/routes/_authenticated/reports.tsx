@@ -152,10 +152,54 @@ function ReportsPage() {
           </SelectContent>
         </Select>
 
+        <Select value={venueId} onValueChange={setVenueId}>
+          <SelectTrigger className="w-56">
+            <SelectValue placeholder="Venue" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All venues</SelectItem>
+            {(data?.venues ?? []).map((venue: any) => (
+              <SelectItem key={venue.id} value={venue.id}>
+                {venue.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={moduleId} onValueChange={setModuleId}>
+          <SelectTrigger className="w-64">
+            <SelectValue placeholder="Module" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All modules</SelectItem>
+            {(data?.modules ?? []).map((module: any) => (
+              <SelectItem key={module.id} value={module.id}>
+                {module.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Input
+          type="date"
+          aria-label="From date"
+          className="w-44"
+          value={dateFrom}
+          onChange={(event) => setDateFrom(event.target.value)}
+        />
+        <Input
+          type="date"
+          aria-label="To date"
+          className="w-44"
+          value={dateTo}
+          onChange={(event) => setDateTo(event.target.value)}
+        />
+
         {session?.departmentId && !isSystemAdmin ? (
           <p className="self-center text-xs text-muted-foreground">Scoped to your assigned department.</p>
         ) : null}
       </div>
+
 
       <Card>
         <CardContent className="p-0">
