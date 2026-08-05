@@ -149,7 +149,7 @@ export function CrudPage(props: CrudPageProps) {
         title={title}
         description={description}
         action={
-          canWrite ? (
+          canCreate ? (
             <Button onClick={startCreate}>
               <Plus className="mr-1.5 h-4 w-4" /> New
             </Button>
