@@ -24,7 +24,28 @@ function Page() {
       refs={["modules", "timeslots", "venues", "lecturers", "exam_periods"]}
       canWrite={isAdmin}
       canCreate={false}
+      searchPlaceholder="Search module or venue"
+      searchText={(r: Row, refs) => {
+        const module = refs["modules"]?.find((m: Row) => m["id"] === r["module_id"]);
+        const venue = refs["venues"]?.find((v: Row) => v["id"] === r["venue_id"]);
+        return `${module?.["code"] ?? ""} ${module?.["name"] ?? ""} ${venue?.["name"] ?? ""} ${r["status"] ?? ""}`;
+      }}
+      filters={(refs) => ([
+        { key: "module_id", label: "Module", options: (refs["modules"] ?? []).map((m: Row) => ({ value: m["id"], label: `${m["code"]} — ${m["name"]}` })) },
+        { key: "venue_id", label: "Venue", options: (refs["venues"] ?? []).map((v: Row) => ({ value: v["id"], label: v["name"] })) },
+        {
+          key: "date",
+          label: "Date",
+          type: "date" as const,
+          match: (r: Row, value: string, refs2: Record<string, Row[]>) => {
+            const slot = refs2["timeslots"]?.find((t: Row) => t["id"] === r["timeslot_id"]);
+            return String(slot?.["slot_date"] ?? "").slice(0, 10) === value;
+          },
+        },
+        { key: "status", label: "Status", options: Array.from(new Set((refs["exams"] ?? []).map((e: Row) => String(e["status"])))).sort().map((status) => ({ value: status, label: status })) },
+      ])}
       columns={(refs) => [
+
         { key: "module_id", label: "Module", render: (r: Row) => lookup(refs["modules"], r["module_id"], "code") },
         { key: "exam_period_id", label: "Period", render: (r: Row) => lookup(refs["exam_periods"], r["exam_period_id"]) },
         {

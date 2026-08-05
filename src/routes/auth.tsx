@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -28,8 +26,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  
+  const [mode, setMode] = useState<"signin" | "forgot">("signin");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -49,28 +46,22 @@ function AuthPage() {
     navigate({ to: "/dashboard", replace: true });
   }
 
-  async function signUp() {
+  async function sendReset() {
+    if (!email.trim()) {
+      toast.error("Enter your email address first.");
+      return;
+    }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: fullName },
-      },
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success("Account created — signing you in");
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError) {
-      toast.error(signInError.message);
-      return;
-    }
-    navigate({ to: "/dashboard", replace: true });
+    toast.success("If that account exists, a password reset email is on its way.");
+    setMode("signin");
   }
 
   return (
@@ -81,49 +72,69 @@ function AuthPage() {
           <CardDescription>University Examination Scheduling System</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="signin" className="space-y-4 pt-4">
+          {mode === "signin" ? (
+            <div className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void signIn();
+                  }}
+                />
               </div>
               <Button className="w-full" onClick={signIn} disabled={busy}>
                 {busy ? "Signing in…" : "Sign in"}
               </Button>
-            </TabsContent>
-
-            <TabsContent value="signup" className="space-y-4 pt-4">
+              <button
+                type="button"
+                className="w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+                onClick={() => setMode("forgot")}
+              >
+                Forgot password?
+              </button>
+              <p className="rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+                Accounts are created by a System Admin. Contact the examinations office if you do not have access.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="fullName">Full name</Label>
-                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                <Label htmlFor="reset-email">Email</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="email2">Email</Label>
-                <Input id="email2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password2">Password</Label>
-                <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-              </div>
-              <div className="rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-                Self-registration creates a <span className="font-medium text-foreground">student</span> account.
-                Administrator and lecturer access is granted by a System Admin after your account exists.
-              </div>
-              <Button className="w-full" onClick={signUp} disabled={busy}>
-                {busy ? "Creating…" : "Create student account"}
+              <Button className="w-full" onClick={sendReset} disabled={busy}>
+                {busy ? "Sending…" : "Send password reset email"}
               </Button>
-            </TabsContent>
-
-          </Tabs>
+              <button
+                type="button"
+                className="w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+                onClick={() => setMode("signin")}
+              >
+                Back to sign in
+              </button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

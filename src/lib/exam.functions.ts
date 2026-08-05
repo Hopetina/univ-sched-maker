@@ -302,14 +302,105 @@ export const updateUserDepartment = createServerFn({ method: "POST" })
     );
   });
 
+export const createManagedUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: { email: string; password: string; fullName: string; departmentId: string | null; roles: AppRole[] }) =>
+      input,
+  )
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, createManagedUserAccount } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return createManagedUserAccount(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data,
+    );
+  });
+
+export const updateManagedUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; fullName: string; email: string; departmentId: string | null }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, updateManagedUserDetails } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return updateManagedUserDetails(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.userId,
+      { fullName: data.fullName, email: data.email, departmentId: data.departmentId },
+    );
+  });
+
+export const resetUserPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; password: string }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, resetManagedUserPassword } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return resetManagedUserPassword(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.userId,
+      data.password,
+    );
+  });
+
+export const setUserActive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; isActive: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    const { assertSystemAdmin, setManagedUserActive } = await import("./admin.server");
+    const repos = createRepositories(context.supabase as never);
+    await assertSystemAdmin(repos, context.userId);
+    return setManagedUserActive(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.userId,
+      data.isActive,
+    );
+  });
+
+export const syncPublicHolidays = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { year: number }) => input)
+  .handler(async ({ data, context }) => {
+    const { syncHolidayCalendar } = await import("./holidays.server");
+    const repos = createRepositories(context.supabase as never);
+    const roles = (await repos.userRoles.list({ filters: { user_id: context.userId } })) as unknown as {
+      role: AppRole;
+    }[];
+    if (!roles.some((r) => r.role === "system_admin")) {
+      throw new Error("Only a System Admin may sync the public-holiday calendar.");
+    }
+    return syncHolidayCalendar(
+      repos,
+      { userId: context.userId, email: String(context.claims["email"] ?? "") },
+      data.year,
+    );
+  });
+
 export const getTimetableReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { examPeriodId?: string | null; departmentId?: string | null }) => input)
+  .inputValidator(
+    (input: {
+      examPeriodId?: string | null;
+      departmentId?: string | null;
+      venueId?: string | null;
+      moduleId?: string | null;
+      dateFrom?: string | null;
+      dateTo?: string | null;
+    }) => input,
+  )
   .handler(async ({ data, context }) => {
     const { buildTimetableReport } = await import("./reporting.server");
     const repos = createRepositories(context.supabase as never);
     return buildTimetableReport(repos, data);
   });
+
 
 export const getAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

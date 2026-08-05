@@ -44,18 +44,27 @@ function ReportsPage() {
   const fetchReport = useServerFn(getTimetableReport);
   const [periodId, setPeriodId] = useState(ALL);
   const [departmentId, setDepartmentId] = useState(ALL);
+  const [venueId, setVenueId] = useState(ALL);
+  const [moduleId, setModuleId] = useState(ALL);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [busy, setBusy] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["timetable-report", periodId, departmentId],
+    queryKey: ["timetable-report", periodId, departmentId, venueId, moduleId, dateFrom, dateTo],
     queryFn: () =>
       fetchReport({
         data: {
           examPeriodId: periodId === ALL ? null : periodId,
           departmentId: departmentId === ALL ? null : departmentId,
+          venueId: venueId === ALL ? null : venueId,
+          moduleId: moduleId === ALL ? null : moduleId,
+          dateFrom: dateFrom || null,
+          dateTo: dateTo || null,
         },
       }) as Promise<any>,
   });
+
 
   const rows = useMemo(
     () =>
