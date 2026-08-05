@@ -41,6 +41,8 @@ export interface CrudPageProps {
   columns: (refs: Record<string, Row[]>) => CrudColumn[];
   fields: (refs: Record<string, Row[]>) => CrudField[];
   canWrite: boolean;
+  /** Allow creating new rows. Defaults to canWrite. Set false when rows must be created elsewhere. */
+  canCreate?: boolean;
   emptyHint?: string;
 }
 
@@ -52,6 +54,7 @@ export function lookup(rows: Row[] | undefined, id: string | null | undefined, k
 
 export function CrudPage(props: CrudPageProps) {
   const { table, title, description, columns, fields, canWrite, refs = [], orderBy } = props;
+  const canCreate = props.canCreate ?? canWrite;
   const list = useServerFn(listRows);
   const save = useServerFn(saveRow);
   const remove = useServerFn(deleteRow);
@@ -146,7 +149,7 @@ export function CrudPage(props: CrudPageProps) {
         title={title}
         description={description}
         action={
-          canWrite ? (
+          canCreate ? (
             <Button onClick={startCreate}>
               <Plus className="mr-1.5 h-4 w-4" /> New
             </Button>
