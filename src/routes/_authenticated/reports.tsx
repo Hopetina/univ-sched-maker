@@ -9,6 +9,8 @@ import { getTimetableReport } from "@/lib/exam.functions";
 import { useSession } from "@/hooks/use-session";
 import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -44,18 +46,27 @@ function ReportsPage() {
   const fetchReport = useServerFn(getTimetableReport);
   const [periodId, setPeriodId] = useState(ALL);
   const [departmentId, setDepartmentId] = useState(ALL);
+  const [venueId, setVenueId] = useState(ALL);
+  const [moduleId, setModuleId] = useState(ALL);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [busy, setBusy] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["timetable-report", periodId, departmentId],
+    queryKey: ["timetable-report", periodId, departmentId, venueId, moduleId, dateFrom, dateTo],
     queryFn: () =>
       fetchReport({
         data: {
           examPeriodId: periodId === ALL ? null : periodId,
           departmentId: departmentId === ALL ? null : departmentId,
+          venueId: venueId === ALL ? null : venueId,
+          moduleId: moduleId === ALL ? null : moduleId,
+          dateFrom: dateFrom || null,
+          dateTo: dateTo || null,
         },
       }) as Promise<any>,
   });
+
 
   const rows = useMemo(
     () =>
@@ -143,10 +154,54 @@ function ReportsPage() {
           </SelectContent>
         </Select>
 
+        <Select value={venueId} onValueChange={setVenueId}>
+          <SelectTrigger className="w-56">
+            <SelectValue placeholder="Venue" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All venues</SelectItem>
+            {(data?.venues ?? []).map((venue: any) => (
+              <SelectItem key={venue.id} value={venue.id}>
+                {venue.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={moduleId} onValueChange={setModuleId}>
+          <SelectTrigger className="w-64">
+            <SelectValue placeholder="Module" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All modules</SelectItem>
+            {(data?.modules ?? []).map((module: any) => (
+              <SelectItem key={module.id} value={module.id}>
+                {module.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Input
+          type="date"
+          aria-label="From date"
+          className="w-44"
+          value={dateFrom}
+          onChange={(event) => setDateFrom(event.target.value)}
+        />
+        <Input
+          type="date"
+          aria-label="To date"
+          className="w-44"
+          value={dateTo}
+          onChange={(event) => setDateTo(event.target.value)}
+        />
+
         {session?.departmentId && !isSystemAdmin ? (
           <p className="self-center text-xs text-muted-foreground">Scoped to your assigned department.</p>
         ) : null}
       </div>
+
 
       <Card>
         <CardContent className="p-0">

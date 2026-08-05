@@ -22,7 +22,10 @@ export interface TimetableReport {
   rows: TimetableReportRow[];
   periods: { id: string; name: string }[];
   departments: { id: string; name: string }[];
+  venues: { id: string; name: string }[];
+  modules: { id: string; name: string }[];
 }
+
 
 export interface AnalyticsResult {
   venueUtilisation: { venue: string; capacity: number; booked: number; utilisation: number }[];
@@ -69,7 +72,14 @@ async function loadCore(repos: Repositories) {
 
 export async function buildTimetableReport(
   repos: Repositories,
-  filters: { examPeriodId?: string | null; departmentId?: string | null },
+  filters: {
+    examPeriodId?: string | null;
+    departmentId?: string | null;
+    venueId?: string | null;
+    moduleId?: string | null;
+    dateFrom?: string | null;
+    dateTo?: string | null;
+  },
 ): Promise<TimetableReport> {
   const core = await loadCore(repos);
   const moduleMap = new Map(core.modules.map((m) => [m.id, m]));
@@ -82,6 +92,8 @@ export async function buildTimetableReport(
 
   const rows: TimetableReportRow[] = core.exams
     .filter((exam) => !filters.examPeriodId || exam.exam_period_id === filters.examPeriodId)
+    .filter((exam) => !filters.venueId || exam.venue_id === filters.venueId)
+    .filter((exam) => !filters.moduleId || exam.module_id === filters.moduleId)
     .map((exam) => {
       const module = moduleMap.get(exam.module_id);
       const department = module ? deptMap.get(module.department_id) : undefined;
@@ -107,14 +119,19 @@ export async function buildTimetableReport(
       };
     })
     .filter((row) => !filters.departmentId || row.departmentId === filters.departmentId)
+    .filter((row) => !filters.dateFrom || row.date >= filters.dateFrom)
+    .filter((row) => !filters.dateTo || row.date <= filters.dateTo)
     .sort((a, b) => `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`));
 
   return {
     rows,
     periods: core.periods.map((p) => ({ id: p.id, name: p.name })),
     departments: core.departments.map((d) => ({ id: d.id, name: d.name })),
+    venues: core.venues.map((v) => ({ id: v.id, name: v.name })),
+    modules: core.modules.map((m) => ({ id: m.id, name: `${m.code} — ${m.name}` })),
   };
 }
+
 
 export async function buildAnalytics(
   repos: Repositories,

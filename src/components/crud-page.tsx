@@ -17,6 +17,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export type Row = Record<string, any>;
 
+const ALL_VALUE = "__all__";
+
+
 export interface CrudField {
   name: string;
   label: string;
@@ -32,6 +35,16 @@ export interface CrudColumn {
   render?: (row: Row, refs: Record<string, Row[]>) => ReactNode;
 }
 
+export interface CrudFilter {
+  key: string;
+  label: string;
+  /** "select" renders a dropdown, "date" renders a date input. */
+  type?: "select" | "date";
+  options?: { value: string; label: string }[];
+  /** Custom matcher. Defaults to comparing row[key] with the selected value. */
+  match?: (row: Row, value: string, refs: Record<string, Row[]>) => boolean;
+}
+
 export interface CrudPageProps {
   table: string;
   title: string;
@@ -44,7 +57,16 @@ export interface CrudPageProps {
   /** Allow creating new rows. Defaults to canWrite. Set false when rows must be created elsewhere. */
   canCreate?: boolean;
   emptyHint?: string;
+  /** Placeholder for the free-text search box. Omit to hide search. */
+  searchPlaceholder?: string;
+  /** Text a row is searched against. Defaults to all column values. */
+  searchText?: (row: Row, refs: Record<string, Row[]>) => string;
+  /** Dropdown / date filters rendered above the table. */
+  filters?: (refs: Record<string, Row[]>) => CrudFilter[];
+  /** Extra buttons rendered next to "New". */
+  extraActions?: ReactNode;
 }
+
 
 export function lookup(rows: Row[] | undefined, id: string | null | undefined, key = "name") {
   if (!id) return "—";
@@ -62,6 +84,8 @@ export function CrudPage(props: CrudPageProps) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [form, setForm] = useState<Record<string, any>>({});
+  const [search, setSearch] = useState("");
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
   const tables = [table, ...refs];
   const results = useQueries({
@@ -82,9 +106,34 @@ export function CrudPage(props: CrudPageProps) {
     return map;
   }, [results, tables]);
 
-  const rows = refData[table] ?? [];
+  const allRows = refData[table] ?? [];
   const cols = columns(refData);
   const formFields = fields(refData);
+  const filterDefs = props.filters ? props.filters(refData) : [];
+  const hasToolbar = Boolean(props.searchPlaceholder) || filterDefs.length > 0;
+
+  const rows = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return allRows.filter((row) => {
+      if (term) {
+        const text = props.searchText
+          ? props.searchText(row, refData)
+          : cols.map((c) => String(row[c.key] ?? "")).join(" ");
+        if (!text.toLowerCase().includes(term)) return false;
+      }
+      for (const filter of filterDefs) {
+        const value = filterValues[filter.key];
+        if (!value) continue;
+        const ok = filter.match
+          ? filter.match(row, value, refData)
+          : String(row[filter.key] ?? "") === value;
+        if (!ok) return false;
+      }
+      return true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allRows, search, filterValues, refData]);
+
 
   const mutation = useMutation({
     mutationFn: (values: Record<string, any>) =>
@@ -149,15 +198,78 @@ export function CrudPage(props: CrudPageProps) {
         title={title}
         description={description}
         action={
-          canCreate ? (
-            <Button onClick={startCreate}>
-              <Plus className="mr-1.5 h-4 w-4" /> New
-            </Button>
-          ) : null
+          <div className="flex items-center gap-2">
+            {props.extraActions}
+            {canCreate ? (
+              <Button onClick={startCreate}>
+                <Plus className="mr-1.5 h-4 w-4" /> New
+              </Button>
+            ) : null}
+          </div>
         }
       />
 
+      {hasToolbar ? (
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          {props.searchPlaceholder ? (
+            <Input
+              placeholder={props.searchPlaceholder}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="w-64"
+              aria-label={props.searchPlaceholder}
+            />
+          ) : null}
+          {filterDefs.map((filter) =>
+            filter.type === "date" ? (
+              <Input
+                key={filter.key}
+                type="date"
+                aria-label={filter.label}
+                value={filterValues[filter.key] ?? ""}
+                onChange={(event) =>
+                  setFilterValues((prev) => ({ ...prev, [filter.key]: event.target.value }))
+                }
+                className="w-44"
+              />
+            ) : (
+              <Select
+                key={filter.key}
+                value={filterValues[filter.key] || ALL_VALUE}
+                onValueChange={(value) =>
+                  setFilterValues((prev) => ({ ...prev, [filter.key]: value === ALL_VALUE ? "" : value }))
+                }
+              >
+                <SelectTrigger className="w-52" aria-label={filter.label}>
+                  <SelectValue placeholder={filter.label} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_VALUE}>All {filter.label.toLowerCase()}</SelectItem>
+                  {(filter.options ?? []).map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ),
+          )}
+          {search || Object.values(filterValues).some(Boolean) ? (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setSearch("");
+                setFilterValues({});
+              }}
+            >
+              Clear
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+
       <Card>
+
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
