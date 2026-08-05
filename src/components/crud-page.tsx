@@ -41,6 +41,8 @@ export interface CrudPageProps {
   columns: (refs: Record<string, Row[]>) => CrudColumn[];
   fields: (refs: Record<string, Row[]>) => CrudField[];
   canWrite: boolean;
+  /** Allow creating new rows. Defaults to canWrite. Set false when rows must be created elsewhere. */
+  canCreate?: boolean;
   emptyHint?: string;
 }
 
