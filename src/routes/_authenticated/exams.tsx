@@ -23,6 +23,7 @@ function Page() {
       description="Created through the scheduling engine. Edits here bypass no rules — reschedules should be made in the engine."
       refs={["modules", "timeslots", "venues", "lecturers", "exam_periods"]}
       canWrite={isAdmin}
+      canCreate={false}
       columns={(refs) => [
         { key: "module_id", label: "Module", render: (r: Row) => lookup(refs["modules"], r["module_id"], "code") },
         { key: "exam_period_id", label: "Period", render: (r: Row) => lookup(refs["exam_periods"], r["exam_period_id"]) },
