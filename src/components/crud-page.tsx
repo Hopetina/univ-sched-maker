@@ -54,7 +54,8 @@ export function lookup(rows: Row[] | undefined, id: string | null | undefined, k
 
 export function CrudPage(props: CrudPageProps) {
   const { table, title, description, columns, fields, canWrite, refs = [], orderBy } = props;
-  const list = useServerFn(listRows);
+  const canCreate = props.canCreate ?? canWrite;
+
   const save = useServerFn(saveRow);
   const remove = useServerFn(deleteRow);
   const queryClient = useQueryClient();
